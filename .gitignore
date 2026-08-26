@@ -1,0 +1,18 @@
+# data
+data/
+
+# environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+
+# jupyter
+.ipynb_checkpoints/
+
+# os
+.DS_Store
+Thumbs.db
+
+# vscode settings
+.vscode/
