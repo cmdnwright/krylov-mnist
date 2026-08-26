@@ -128,7 +128,7 @@ def solve_tridiagonal(a, b, c, rhs):
     a : (n,) ndarray
         subdiagonal (a[0] ignored)
     b : (n,) ndarray
-        main diagonal.
+        main diagonal
     c : (n,) ndarray
         superdiagonal (c[-1] ignored)
     rhs : (n,) ndarray
@@ -161,27 +161,26 @@ def solve_tridiagonal(a, b, c, rhs):
 
 def solve_hessenberg(H, rhs):
     '''
-    Solve Hx = rhs for upper Hessenberg H with O(n^2) Gaussian elimination.
-
-    No pivoting is done, so this is purely educational.
+    solve Hx = rhs for upper hessenberg H with O(n^2) gaussian elimination without pivoting
 
     Parameters
     ----------
-    H : (n, n) ndarray, upper Hessenberg
+    H : (n, n) ndarray
+        upper hessenberg matrix
     rhs : (n,) ndarray
+        rhs of the equation hx = rhs
 
     Returns
     -------
     x : (n,) ndarray
+        solution
     '''
     H = H.copy().astype(float)
     b = rhs.copy().astype(float)
     n = H.shape[0]
 
-    # Forward elimination to upper triangular form
     for k in range(n - 1):
         if abs(H[k, k]) < 1e-15:
-            # Fallback to full pivot if needed (rare in classroom problems)
             pivot = np.argmax(np.abs(H[k:, k])) + k
             if pivot != k:
                 H[[k, pivot]] = H[[pivot, k]]
@@ -191,7 +190,6 @@ def solve_hessenberg(H, rhs):
         H[k + 1, k:] -= factor * H[k, k:]
         b[k + 1] -= factor * b[k]
 
-    # Back substitution
     x = np.zeros_like(b)
     for i in range(n - 1, -1, -1):
         x[i] = (b[i] - H[i, i + 1:] @ x[i + 1:]) / H[i, i]
