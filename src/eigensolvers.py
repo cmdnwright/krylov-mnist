@@ -378,10 +378,13 @@ class SymmetricQRResult:
 
 
 def wilkinson_shift_2x2(a, b, d):
-    '''Wilkinson shift for 2x2 [[a, b], [b, d]] (symmetric case).'''
+    '''wilkinson shift for 2x2 [[a, b], [b, d]] (symmetric case)'''
     delta = (a - d) / 2.0
+    denom = abs(delta) + math.sqrt(delta * delta + b * b)
+    if denom == 0.0:
+        return d
     sign = 1.0 if delta >= 0 else -1.0
-    mu = d - sign * (b * b) / (abs(delta) + math.sqrt(delta * delta + b * b))
+    mu = d - sign * (b * b) / denom
     return mu
 
 
