@@ -118,6 +118,75 @@ def lanczos(A, b, k_max, tol=1e-14):
 
     return Q, T, np.array(alpha), np.array(beta)
 
+import numpy as np
+
+def lanczos_reorthogonalization(A, b, k_max, tol=1e-14):
+    '''lanczos iteration for real symmetric matrices, with full reorthogonalization
+
+    Parameters
+    ----------
+    A : (m, m) ndarray
+        real symmetric matrix
+    b : (m,) ndarray
+        starting vector, nonzero
+    k_max : int
+        maximum number of lanczos steps
+    tol : float
+        breakdown tolerance
+
+    Returns
+    -------
+    Q : (m, k) ndarray
+        orthonormal lanczos vectors [q_1, ..., q_k]
+    T : (k, k) ndarray
+        symmetric tridiagonal matrix T_k = Q^T A Q
+    alpha : (k,) ndarray
+        diagonal entries of T
+    beta : (k-1,) ndarray
+        off diagonal entries of T
+    '''
+
+    m = A.shape[0]
+
+    Q = np.empty((m, 0))
+    alpha = np.zeros(k_max + 1)
+    beta = np.zeros(k_max + 1)
+
+    beta[0] = 0
+    qlast = np.zeros(m)
+    q = b / np.linalg.norm(b)
+
+    k = 0
+    for k in range(1, k_max + 1):
+
+        v = A @ q
+
+        alpha[k] = np.vdot(q, v)
+
+        v = v - beta[k - 1] * qlast - alpha[k] * q
+
+        if Q.shape[1] > 0:
+            v -= Q @ (Q.T @ v)
+            v -= Q @ (Q.T @ v)
+
+        beta[k] = np.linalg.norm(v)
+
+        Q = np.hstack((Q, q.reshape(-1, 1)))
+
+        if beta[k] < tol:
+            break
+        else:
+            qlast = q.copy()
+            q = v / beta[k]
+
+    Q = Q[:, :k]
+    alpha = alpha[1:k + 1]
+    beta = beta[1:k]
+
+    T = np.diag(alpha) + np.diag(beta, k=-1) + np.diag(beta, k=1)
+
+    return Q, T, np.array(alpha), np.array(beta)
+
 
 def conjugate_gradient(A, b, x0=None, tol=1e-8, maxiter=None):
     '''conjugate gradient method for SPD matrices

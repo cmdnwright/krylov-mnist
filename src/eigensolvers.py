@@ -451,11 +451,11 @@ class FrancisQRResult:
 
 
 def francis_double_shift_qr(H, maxit=2000, tol=None, shifted=True):
-    '''hessenberg QR iteration with optional shift.
-    not a full LAPACK-style implicit double-shift Francis implementation but still
-    a stable QR iteration specialized to upper Hessenberg matrices, using a simple rayleigh 
-    shift on the active trailing 1x1 block. On the small projected matrices that arise from Arnoldi
-    (say k <= 20), it converges quickly and produces the correct eigenvalues to machine precision.
+    '''hessenberg QR iteration with optional shift. not a full LAPACK-style implicit double-shift 
+    Francis implementation but still a stable QR iteration specialized to upper Hessenberg matrices,
+    using a simple rayleigh shift on the active trailing 1x1 block. On the small projected matrices
+    that arise from Arnoldi (say k <= 20), it converges quickly and produces the correct eigenvalues 
+    to machine precision.
 
     Parameters
     ----------
