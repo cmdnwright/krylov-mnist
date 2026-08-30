@@ -16,19 +16,19 @@ import numpy.linalg as la
 rng = np.random.default_rng()
 
 
-def normalize(v):
+def normalize(v: np.ndarray) -> np.ndarray:
     '''normalize v / ||v||_2, or v if v == 0'''
     n = la.norm(v)
     return v if n == 0 else (v / n)
 
 
-def rayleigh_quotient(A, x):
+def rayleigh_quotient(A: np.ndarray, x: np.ndarray) -> float:
     '''rayleigh quotient x^T A x / (x^T x)'''
     x = normalize(x)
     return float(x @ (A @ x))
 
 
-def householder_hessenberg(A):
+def householder_hessenberg(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''reduce a general real matrix A to upper hessenberg form H via
     orthogonal similarity  A = Q H Q^T
 
@@ -73,7 +73,7 @@ def householder_hessenberg(A):
     return H, Q
 
 
-def householder_tridiagonal(A):
+def householder_tridiagonal(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''reduce a real symmetric matrix A to tridiagonal form T via
     orthogonal similarity  A = Q T Q^T
 
@@ -118,7 +118,7 @@ def householder_tridiagonal(A):
     return T, Q
 
 
-def solve_tridiagonal(a, b, c, rhs):
+def solve_tridiagonal(a: np.ndarray, b: np.ndarray, c: np.ndarray, rhs: np.ndarray) -> np.ndarray:
     '''solve a tridiagonal system Tx = rhs using the thomas algorithm
 
     T = diag(a, -1) + diag(b, 0) + diag(c, +1), with a[0] unused and c[-1] unused
@@ -159,9 +159,8 @@ def solve_tridiagonal(a, b, c, rhs):
     return x
 
 
-def solve_hessenberg(H, rhs):
-    '''
-    solve Hx = rhs for upper hessenberg H with O(n^2) gaussian elimination without pivoting
+def solve_hessenberg(H: np.ndarray, rhs: np.ndarray) -> np.ndarray:
+    '''solve Hx = rhs for upper hessenberg H with O(n^2) gaussian elimination without pivoting
 
     Parameters
     ----------
@@ -201,12 +200,11 @@ def solve_hessenberg(H, rhs):
 class PowerResult:
     eigenvector: np.ndarray
     eigenvalue: float
-    lambdas: list
+    lambdas: list[float]
 
 
-def power_iteration(A, v0=None, maxit=500, tol=1e-10):
-    '''
-    Power iteration for dominant eigenpair of A (works best if A is symmetric
+def power_iteration(A: np.ndarray, v0: np.ndarray | None = None, maxit: int = 500, tol: float = 1e-10) -> PowerResult:
+    '''power iteration for dominant eigenpair of A (works best if A is symmetric
     or diagonalizable with a unique dominant eigenvalue).
 
     Parameters
@@ -247,12 +245,11 @@ def power_iteration(A, v0=None, maxit=500, tol=1e-10):
 class InverseIterationResult:
     eigenvector: np.ndarray
     eigenvalue: float
-    lambdas: list
+    lambdas: list[float]
 
 
-def inverse_iteration(A, mu, v0=None, maxit=50, tol=1e-12, structure='full'):
-    '''
-    inverse iteration for an eigenvalue near shift mu
+def inverse_iteration(A: np.ndarray, mu: float, v0: np.ndarray | None = None, maxit: int = 50, tol: float = 1e-12, structure: str = 'full') -> InverseIterationResult:
+    '''inverse iteration for an eigenvalue near shift mu
 
     Parameters
     ----------
@@ -309,13 +306,11 @@ def inverse_iteration(A, mu, v0=None, maxit=50, tol=1e-12, structure='full'):
 class RQIResult:
     eigenvector: np.ndarray
     eigenvalue: float
-    mus: list
+    mus: list[float]
 
 
-def rayleigh_quotient_iteration(A, v0=None, maxit=30, tol=1e-12,
-                                structure='full'):
-    '''
-    rayleigh quotient iteration (cubic convergence for symmetric/Hermitian A)
+def rayleigh_quotient_iteration(A: np.ndarray, v0: np.ndarray | None = None, maxit: int = 30, tol: float = 1e-12, structure: str = 'full') -> RQIResult:
+    '''rayleigh quotient iteration (cubic convergence for symmetric/Hermitian A)
 
     Parameters
     ----------
@@ -377,7 +372,7 @@ class SymmetricQRResult:
     Q: np.ndarray
 
 
-def wilkinson_shift_2x2(a, b, d):
+def wilkinson_shift_2x2(a: float, b: float, d: float) -> float:
     '''wilkinson shift for 2x2 [[a, b], [b, d]] (symmetric case)'''
     delta = (a - d) / 2.0
     denom = abs(delta) + math.sqrt(delta * delta + b * b)
@@ -388,9 +383,8 @@ def wilkinson_shift_2x2(a, b, d):
     return mu
 
 
-def qr_iteration_symmetric(T, maxit=1000, shifted=True, tol=None):
-    '''
-    explicit QR iteration for symmetric or ideally tridiagonal matrices.
+def qr_iteration_symmetric(T: np.ndarray, maxit: int = 1000, shifted: bool = True, tol: float | None = None) -> SymmetricQRResult:
+    '''explicit QR iteration for symmetric or ideally tridiagonal matrices.
 
     Parameters
     ----------
@@ -428,9 +422,9 @@ def qr_iteration_symmetric(T, maxit=1000, shifted=True, tol=None):
 
         mu = 0.0
         if shifted:
-            a = A[m - 2, m - 2]
-            b = A[m - 2, m - 1]
-            d = A[m - 1, m - 1]
+            a = float(A[m - 2, m - 2])
+            b = float(A[m - 2, m - 1])
+            d = float(A[m - 1, m - 1])
             mu = wilkinson_shift_2x2(a, b, d)
 
         Q, R = la.qr(A[:m, :m] - mu * np.eye(m))
@@ -450,7 +444,7 @@ class FrancisQRResult:
     Q: np.ndarray # accumulated orthogonal similarity A = Q H Q^T
 
 
-def francis_double_shift_qr(H, maxit=2000, tol=None, shifted=True):
+def francis_double_shift_qr(H: np.ndarray, maxit: int = 2000, tol: float | None = None, shifted: bool = True) -> FrancisQRResult:
     '''hessenberg QR iteration with optional shift. not a full LAPACK-style implicit double-shift 
     Francis implementation but still a stable QR iteration specialized to upper Hessenberg matrices,
     using a simple rayleigh shift on the active trailing 1x1 block. On the small projected matrices
