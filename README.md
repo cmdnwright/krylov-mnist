@@ -63,5 +63,3 @@ pip install -r requirements.txt
 
 # 3. run krylov methods and MNIST notebooks
 ```
-
-
